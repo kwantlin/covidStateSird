@@ -4,7 +4,7 @@ plotCols <- c("#AEC441", "#008875", "#0094D6", "#F2E000", "#C362A6", "#F78F1E", 
 plotCumulativeCases <- function(allS, state, days, statePop, plotT, endPlot, plotCol = plotCols[2]) {
     par(mai = c(.8,.8,1,.4), mgp = c(3,.75,0))
   
-    qC <- t(apply(statePop - allS, 1, quantile, probs = c(.05, .5,  .95),  na.rm =     TRUE))[1:length(plotT),]
+    qC <- t(apply(statePop - allS, 1, quantile, probs = c(.05, .5,  .95),  na.rm = TRUE))[1:length(plotT),]
   
     plot(plotT, qC[,2], col = NA, ylim = c(0, max(qC[,3])), xaxs = "i", xaxt = "n",
          yaxt = "n", ylab = "", xlab = "")
@@ -88,8 +88,9 @@ plotDailyDeaths <- function(allD, allStateFit, stateFit, state, days, plotT, end
       wideDeathUp <- matrix(allStateFit$deathUp, nrow = length(stateFit$times), ncol = length(SAMPS), byrow = F)
       qDD[,3] <- t(apply(wideDeathUp, 1, quantile, probs = c(.95,.5),  na.rm = TRUE))[1:length(plotT),1]
     }
-  
-    plot(plotT, qDD[,2], col = NA, ylim = c(0, max(qDD[,3]) * 1.04), xaxs = "i", xaxt = "n",
+    # print(qDD)
+    # print(c(0, max(qDD[,3], na.rm=T) * 1.04))
+    plot(plotT, qDD[,2], col = NA, ylim = c(0, max(qDD[,3], na.rm=T) * 1.04), xaxs = "i", xaxt = "n",
           yaxt = "n", ylab = "", yaxs = "i", xlab = "")
   
     polygon(c(plotT, rev(plotT)),
@@ -97,15 +98,15 @@ plotDailyDeaths <- function(allD, allStateFit, stateFit, state, days, plotT, end
     lines(plotT, qDD[,2], col = plotCol, lwd = 2)
     points(days[1:(length(days)-1)], diff(state[2,]), pch = 19, col = "grey33")
   
-    if(max(qDD) > 1000) {
+    if(max(qDD, na.rm=T) > 1000) {
       axisTicks <- seq(0,100000,100)
-    } else if (max(qDD) > 500) {
+    } else if (max(qDD, na.rm=T) > 500) {
       axisTicks <- seq(0,100000,100)
-    } else if (max(qDD) > 100) {
+    } else if (max(qDD, na.rm=T) > 100) {
       axisTicks <- seq(0,100000,50)
-      } else if (max(qDD) > 50) {
+      } else if (max(qDD, na.rm=T) > 50) {
         axisTicks <- seq(0,100000,10)
-      } else if (max(qDD) > 10) {
+      } else if (max(qDD, na.rm=T) > 10) {
         axisTicks <- seq(0,100000,5)
       } else {
       axisTicks <- seq(0,100000,1)

@@ -243,7 +243,7 @@ stateSird <- function(stateAbbrev, covariates, stateInterventions, stateCovidDat
     plotRt(allRt, state, days, plotT, endPlot)
     mtext(stateAbbrev, outer=TRUE,  cex=2, line=-4)
     
-    plotDoubleTimeCases(allDTC, plotT, endPlot, plotCols[7])
+    plotDoubleTimeCases(all2xCases, plotT, endPlot, plotCols[7])
     plotDoubleTimeDeaths(all2xDeaths, plotT, endPlot, plotCols[8])
     plotPropDeath(allPropDead, plotT, endPlot, plotCols[3])
     

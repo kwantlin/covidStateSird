@@ -56,14 +56,13 @@ for(i in 1:length(states)) {
   
   velocLogCases <- rbind(velocLogCases, cbind(velocLoc$cases,  loc, row.names = NULL))
 }
-
+print(colnames(velocLogCases))
 velocLogCasesList <- as.list(velocLogCases)
 velocLogCasesList$N <- nrow(velocLogCases)
 velocLogCasesList$nLoc <- length(unique(velocLogCasesList$loc))
-
 velocLogCasesList$y[velocLogCasesList$y <= 0] <- NA
 print(names(velocLogCasesList))
-params <- c("mu_a", "mu_b", "tau", "a", "b", "g", "d", "mu_g", "mu_d", "mu", "alpha", "beta", "mu_alpha", "mu_beta")
+params <- c("mu_a", "mu_b", "tau", "a", "b", "g", "d", "v", "w", "mu_g", "mu_d","mu_v", "mu_w", "mu", "alpha", "beta", "mu_alpha", "mu_beta")
  
 start <- Sys.time()
 

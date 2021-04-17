@@ -54,7 +54,7 @@ riasJagsModel <- function(){
   for (i in 1:N){
     y[i] ~ dlnorm(mu[i], tau[i])
 
-    mu[i] <-  a[loc[i]] + b[loc[i]] * t[i] + (g[loc[i]] + d[loc[i]] * t[i]) * postIntervention[i]
+    mu[i] <-  a[loc[i]] + b[loc[i]] * t[i] + (g[loc[i]] + d[loc[i]] * t[i]) * postIntervention[i] + v[vacc[i]] + w[vacc[i]] * t[i]
     tau[i] <- exp(alpha[loc[i]] + beta[loc[i]] * t[i])
   }
   
@@ -64,6 +64,8 @@ riasJagsModel <- function(){
     b[j] ~ dnorm(mu_b, 10) # random slope for location
     g[j] ~ dnorm(mu_g, 1) # random effect for post-intervention
     d[j] ~ dnorm(mu_d, 10) # random slope for post-intervention
+    v[j] ~ dnorm(mu_v, 1) # random effect for vacc
+    w[j] ~ dnorm(mu_w, 10) # random slope for vacc
     alpha[j] ~ dnorm(mu_alpha, 1)
        beta[j]  ~ dnorm(mu_beta, 10)
   }
@@ -71,6 +73,8 @@ riasJagsModel <- function(){
   mu_b  ~ dnorm(0, 10) # random slope mean
   mu_g  ~ dnorm(0, 1) # random effect mean
   mu_d  ~ dnorm(-.05, 10) # random slope mean
+  mu_v  ~ dnorm(0, 1) # random vacc mean
+  mu_w  ~ dnorm(-.05, 10) # random vacc slope mean
   mu_alpha ~ dnorm(0,1)
   mu_beta  ~ dnorm(0, 10)
 }
