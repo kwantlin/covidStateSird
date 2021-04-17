@@ -1,6 +1,12 @@
 ## ----load_libraries-----------------------------------------------------------
+# install.packages("covidStateSird", repos = "http://cran.us.r-project.org")
+# install.packages("rjags", repos = "http://cran.us.r-project.org")
+# library(rjags)
+install.packages("randomForest", repo="http://cran.r-project.org", dep=T)
+library(randomForest)
 library(covidStateSird)
 library(foreach)
+library(dplyr)
 
 
 # the last day of data to use
@@ -9,34 +15,37 @@ minCase <- 100
 
 set.seed(525600)
 
-covidDir <- "../"
+covidDir <- ".."
 
 doParallel::registerDoParallel(cores=5)
 
-outputPath <- file.path(covidDir, "/Output", Sys.Date())
+outputPath <- file.path(covidDir, "Output", Sys.Date())
 dir.create(outputPath)
-dir.create(file.path(outputPath, "/Tables/"))
-dir.create(file.path(outputPath, "/Plots/"))
-dir.create(file.path(outputPath, "/Data/"))
+dir.create(file.path(outputPath, "Tables/"))
+dir.create(file.path(outputPath, "Plots/"))
+dir.create(file.path(outputPath, "Data/"))
 
-stateInterventions <- read.csv(paste0(covidDir, "Data/StateInterventionDates.csv"),
+stateInterventions <- read.csv(paste0(covidDir, "/Data/StateInterventionDates.csv"),
                                stringsAsFactors = FALSE,
                                header = TRUE)
 
 stateDataCSV <- "https://raw.githubusercontent.com/COVID19Tracking/covid-public-api/master/v1/states/daily.csv"
 
+vaccineData <- read.csv(paste0(covidDir, "/Data/us_state_vaccinations.csv"),
+                               stringsAsFactors = FALSE,
+                               header = TRUE)
 stateCovidData <- read.csv(stateDataCSV)
 
-covariates <- read.csv(paste0(covidDir, "Data/COVID-19 Location Covariates - analyticStates.csv"))
+covariates <- read.csv(paste0(covidDir, "/Data/COVID-19 Location Covariates - analyticStates.csv"))
 covariates[, c("heartDisease", "lungCancer", "diabetes", "copd")] <-
   covariates[, c("heartDisease", "lungCancer", "diabetes", "copd")] / 100000
 
-states <- c("AK", "AL", "AR", "AZ", "CA", "CO", "CT", "DE", "FL", "GA", 
-            "HI", "IA", "ID", "IL", "IN", "KS", "KY", "LA", "MA", "MD", 
-            "ME", "MI", "MN", "MO", "MS", "MT", "NC", "ND", "NE", "NH", 
-            "NJ", "NM", "NV", "NY", "OH", "OK", "OR", "PA", "RI", "SC", 
+states <- c("AK", "AL", "AR", "AZ", "CA", "CO", "CT", "DE", "FL", "GA",
+            "HI", "IA", "ID", "IL", "IN", "KS", "KY", "LA", "MA", "MD",
+            "ME", "MI", "MN", "MO", "MS", "MT", "NC", "ND", "NE", "NH",
+            "NJ", "NM", "NV", "NY", "OH", "OK", "OR", "PA", "RI", "SC",
             "SD", "TN", "TX", "UT", "VA", "VT", "WA", "WI", "WV", "WY")
- 
+
 velocLogCases <- velocLogDeaths <- data.frame()
 loc <- 0
 for(i in 1:length(states)) {
@@ -53,7 +62,7 @@ velocLogCasesList$N <- nrow(velocLogCases)
 velocLogCasesList$nLoc <- length(unique(velocLogCasesList$loc))
 
 velocLogCasesList$y[velocLogCasesList$y <= 0] <- NA
-
+print(names(velocLogCasesList))
 params <- c("mu_a", "mu_b", "tau", "a", "b", "g", "d", "mu_g", "mu_d", "mu", "alpha", "beta", "mu_alpha", "mu_beta")
  
 start <- Sys.time()
