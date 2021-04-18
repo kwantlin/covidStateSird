@@ -2,15 +2,23 @@
 # install.packages("covidStateSird", repos = "http://cran.us.r-project.org")
 # install.packages("rjags", repos = "http://cran.us.r-project.org")
 # library(rjags)
-install.packages("randomForest", repo="http://cran.r-project.org", dep=T)
+# install.packages("randomForest", repo="http://cran.r-project.org", dep=T)
 library(randomForest)
 library(covidStateSird)
 library(foreach)
 library(dplyr)
+# install.packages("ggplot2", repo="http://cran.r-project.org", dep=T)
+# install.packages("forecast", repo="http://cran.r-project.org", dep=T)
+# install.packages("astsa", repo="http://cran.r-project.org", dep=T)
+# install.packages("nlme", repo="http://cran.r-project.org", dep=T)
+library(ggplot2)
+library(forecast)
+library(astsa)
+library(nlme)
 
 
 # the last day of data to use
-endDate <- "2020-11-23"
+endDate <- "2021-03-07"
 minCase <- 100
 
 set.seed(525600)
@@ -50,8 +58,7 @@ velocLogCases <- velocLogDeaths <- data.frame()
 loc <- 0
 for(i in 1:length(states)) {
   loc <- loc + 1
-
-  velocLoc <- velocitiesState(stateCovidData, states[i], stateInterventions, minCases = minCase, endDate = endDate)
+  velocLoc <- velocitiesState(stateCovidData, vaccineData, states[i], stateInterventions, minCases = minCase, endDate = endDate)
   population <- stateInterventions$statePopulation[stateInterventions$stateAbbreviation == states[i]]
   
   velocLogCases <- rbind(velocLogCases, cbind(velocLoc$cases,  loc, row.names = NULL))
@@ -62,7 +69,7 @@ velocLogCasesList$N <- nrow(velocLogCases)
 velocLogCasesList$nLoc <- length(unique(velocLogCasesList$loc))
 velocLogCasesList$y[velocLogCasesList$y <= 0] <- NA
 print(names(velocLogCasesList))
-params <- c("mu_a", "mu_b", "tau", "a", "b", "g", "d", "v", "w", "mu_g", "mu_d","mu_v", "mu_w", "mu", "alpha", "beta", "mu_alpha", "mu_beta")
+params <- c("mu_a", "mu_b", "tau", "a", "b", "g", "d", "mu_g", "mu_d", "mu", "alpha", "beta", "mu_alpha", "mu_beta")
  
 start <- Sys.time()
 
