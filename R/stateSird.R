@@ -1,8 +1,7 @@
 #' @export
 #' @importFrom dplyr %>% lag group_by mutate
 #' @importFrom TTR runMean
-stateSird <- function(stateAbbrev, covariates, stateInterventions, stateCovidData,
-  randomForestDeathModel, posteriorSamples,
+stateSird <- function(stateAbbrev, covariates, stateInterventions, stateCovidData, vaccineData, randomForestDeathModel, posteriorSamples,
   rfError = FALSE, plots = TRUE, lagDays = 21, minCases = 100, endDay = endDate, endPlotDay = "2020-11-01") {
 
   statePop = stateInterventions$statePopulation[which(stateInterventions$stateAbbreviation == stateAbbrev)]

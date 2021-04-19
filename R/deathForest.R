@@ -1,36 +1,40 @@
 #' @export
 #' @importFrom randomForest randomForest na.roughfix
-deathForest <- function(stateCovidData, stateList, covariates, lagDays, fileOut = NULL) {
+deathForest <- function(stateCovidData, vaccineData,stateList, covariates, lagDays, fileOut = NULL) {
   
   velocLogCases <- velocLogDeaths <- data.frame()
   loc <- 0
   for(i in 1:length(stateList)) {
     loc <- loc + 1
-     
-    velocLoc <- velocitiesState(stateCovidData, stateList[i], stateInterventions, minCases = 0, endDate = endDate)
+    # print(i)
+    velocLoc <- velocitiesState(stateCovidData, vaccineData, stateList[i], stateInterventions, minCases = 0, endDate = endDate)
+    # print(velocLoc)
     covariatesLoc <- covariates[covariates$location == stateList[i],]
     population <- stateInterventions$statePopulation[stateInterventions$stateAbbreviation == stateList[i]]
     velocLogCases <- rbind(velocLogCases, cbind(velocLoc$cases,  loc, covariatesLoc[,-1], population, row.names = NULL))
+    # print("done")
   }
-
+  # print("out of loop")
   velocLogCasesList <- as.list(velocLogCases)
   velocLogCasesList$N <- nrow(velocLogCases)
   velocLogCasesList$nLoc <- length(unique(velocLogCasesList$loc))
   velocLogCasesList$p <- ncol(velocLogCases) - 3
-
+  # print("veloc done")
   maxLag1 <- lagDays - 1
   deathModelData <- NULL
   for(i in unique(velocLogCases$loc)) {
     dDeaths <- diff(velocLogCases$deaths[velocLogCases$loc == i])[-(1:maxLag1)]
     dCases  <- diff(velocLogCases$u[velocLogCases$loc == i])
-    
+    # print("got cases and deaths")
     laggedNewCases <- NULL
     for(k in 1:lagDays) {
       laggedNewCases <- cbind(laggedNewCases, lag(dCases,k-1)[-(1:maxLag1)])
+      # print("got lagged new")
     }
     colnames(laggedNewCases) <- paste0("dCase",1:lagDays)
-
+    # print("got col names")
     deathModelData <- rbind(deathModelData, cbind(velocLogCases[velocLogCases$loc ==   i,][-(1:(maxLag1+1)),], dDeaths, laggedNewCases))
+    # print("done deathmodeldata")
   }
   
   randomForestDeathModel <- randomForest::randomForest(dDeaths ~ .,

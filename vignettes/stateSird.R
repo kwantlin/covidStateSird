@@ -18,7 +18,7 @@ library(nlme)
 
 
 # the last day of data to use
-endDate <- "2021-03-07"
+endDate <- "2021-02-07"
 minCase <- 100
 
 set.seed(525600)
@@ -58,12 +58,15 @@ velocLogCases <- velocLogDeaths <- data.frame()
 loc <- 0
 for(i in 1:length(states)) {
   loc <- loc + 1
+  # vacc <- vaccineData[which(vaccineData$location == stateAbbrev),]
+  # vacc <- vacc$
   velocLoc <- velocitiesState(stateCovidData, vaccineData, states[i], stateInterventions, minCases = minCase, endDate = endDate)
   population <- stateInterventions$statePopulation[stateInterventions$stateAbbreviation == states[i]]
   
   velocLogCases <- rbind(velocLogCases, cbind(velocLoc$cases,  loc, row.names = NULL))
+  # print(colnames(velocLogCases))
 }
-print(colnames(velocLogCases))
+print(head(velocLogCases))
 velocLogCasesList <- as.list(velocLogCases)
 velocLogCasesList$N <- nrow(velocLogCases)
 velocLogCasesList$nLoc <- length(unique(velocLogCasesList$loc))
@@ -97,7 +100,7 @@ save(posteriorSamples,
   file = paste0(outputPath, "/CasePosteriorSamples", endDate, ".Rdata"))
 
 # run state SIRD models
-randomForestDeathModel <- deathForest(stateCovidData, states, covariates, 21, fileOut = paste0(outputPath, "/randomForestDeathModel.Rdata"))
+randomForestDeathModel <- deathForest(stateCovidData, vaccineData, states, covariates, 21, fileOut = paste0(outputPath, "/randomForestDeathModel.Rdata"))
 
 load(paste0(outputPath, "/CasePosteriorSamples", endDate, ".Rdata"))
 
@@ -109,7 +112,7 @@ load(paste0(outputPath, "/CasePosteriorSamples", endDate, ".Rdata"))
 #   posteriorSamples, rfError = T)
 # }
  for(i in 1:length(states)) {
-   stateSird(states[i], covariates, stateInterventions, stateCovidData, randomForestDeathModel,
+   stateSird(states[i], covariates, stateInterventions, stateCovidData, vaccineData, randomForestDeathModel,
    posteriorSamples, rfError = T)
  }
 

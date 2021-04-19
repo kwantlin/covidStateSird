@@ -6,19 +6,20 @@ velocitiesState <- function(statesLong, vaccinesLong, stateAbbrev, stateInterven
     if(intervDate == "") intervDate <- "2099-01-01"
   }
   stateLong <- statesLong[which(statesLong$state == stateAbbrev),]
-  print(head(stateLong$date))
+  # print(head(stateLong$date))
   stateLong <- stateLong[which(stateLong$date %in% vaccinesLong$date), ]
-  print(stateLong$date)
+  # print(stateLong$date)
+  # print(vaccinesLong)
   vaccineLong <- vaccinesLong[which(vaccinesLong$location == stateAbbrev),]
   vaccineLong <- vaccineLong[which(vaccineLong$date %in% stateLong$date), ]
   # n.day <- nrow(stateLong)
   n.day <- nrow(vaccineLong)
-  print(nrow(vaccineLong))
-  print(nrow(stateLong))
+  # print(nrow(vaccineLong))
+  # print(nrow(stateLong))
   daysAll <- NULL
-  first_y <- as.numeric(substr(stateLong$date[i],1,4))
-  first_m <- as.numeric(substr(stateLong$date[i],5,6))
-  first_d <- as.numeric(substr(stateLong$date[i],7,8))
+  # first_y <- as.numeric(substr(stateLong$date[i],1,4))
+  # first_m <- as.numeric(substr(stateLong$date[i],5,6))
+  # first_d <- as.numeric(substr(stateLong$date[i],7,8))
   for(i in 1:n.day) {
     daysAll[i] <-(paste(substr(stateLong$date[i],1,4),
                         substr(stateLong$date[i],5,6),
@@ -55,6 +56,7 @@ velocitiesState <- function(statesLong, vaccinesLong, stateAbbrev, stateInterven
   # print(v)
   ys <- diff(y)/diff(x)
   vs <- diff(v)/diff(x)
+  # print(lapply(as.numeric(vs), as.integer))
   # x <- seq(1, length(ycs.prime), by=1)
   ts_v <- ts(vs, frequency=365, start=1)
   ts_y <- ts(ys, frequency=365, start=1)
@@ -62,43 +64,70 @@ velocitiesState <- function(statesLong, vaccinesLong, stateAbbrev, stateInterven
   # print(xreg)
   # print(ycs.prime)
   fit_basic1 <- auto.arima(ts_y, xreg=xreg)
-  print(fit_basic1)
-  plot(fit_basic1$x,col="red")
-  lines(fitted(fit_basic1),col="blue")
-  print(fitted(fit_basic1))
+  # print(fit_basic1)
+  # checkresiduals(fit_basic1)
+  # print(as.data.frame(fitted.values(fit_basic1)))
   # forecast_1 <- forecast(fit_basic1,xreg = xreg)
   # print(forecast_1)
   # splineCases <- smooth.spline(x = x[y > - Inf], y = y[y > -Inf])
   # derivCases <- predict(splineCases, deriv = 1)
   # print(derivCases)
 
-  stateAll <- rbind(stateLong$positive, stateLong$death, stateLong$hospitalizedCurrently)
-  state <- stateAll[,which(stateAll[1,] >= minCases)]
-  days  <- as.Date(daysAll[which(stateAll[1,] >= minCases)])
+  # stateAll <- rbind(stateLong$positive, stateLong$death, stateLong$hospitalizedCurrently)
+  # state <- stateAll[,which(stateAll[1,] >= minCases)]
+  # days  <- as.Date(daysAll[which(stateAll[1,] >= minCases)])
   
-  postIntervention <- 1 * (days > intervDate)
+  # postIntervention <- 1 * (days > intervDate)
   
-  y <- log(state[1, !is.na(state[1,]) & (days <= endDate)])
-  x <- which(!is.na(state[1,]) & (days <= endDate))
-  splineCases <- smooth.spline(x = x[y > - Inf], y = y[y > -Inf])
-  derivCases <- predict(splineCases, deriv = 1)
-  print(derivCases)
+  # y <- log(state[1, !is.na(state[1,]) & (days <= endDate)])
+  # x <- which(!is.na(state[1,]) & (days <= endDate))
+  # splineCases <- smooth.spline(x = x[y > - Inf], y = y[y > -Inf])
+  # derivCases <- predict(splineCases, deriv = 1)
+  # print("derivCases")
+  # print(derivCases)
 
-  y <- log(state[2, !is.na(state[2,]) & (days <= endDate)])
-  x <- which(!is.na(state[2,]) & (days <= endDate))
-  splineDeaths <- smooth.spline(x = x[y > - Inf], y = y[y > -Inf])
-  derivDeaths <- predict(splineDeaths, deriv = 1)
+  # ts_v <- ts(derivCases$y, frequency=365, start=1)
+  x <- seq(1, nrow(as.data.frame(fitted.values(fit_basic1))), by=1)
+  # plot(fit_basic1$x,col="red")
+  # lines(fitted(fit_basic1),col="blue")
+  # lines(ts_v, col="green")
 
-  return(list(cases = data.frame(y = derivCases$y,
-                                 t = derivCases$x,
-                                 u = state[1,derivCases$x],
-                                 postIntervention = postIntervention[derivCases$x],
-                                 deaths = state[2, derivCases$x]),
-              deaths = data.frame(y = derivDeaths$y,
-                                  t = derivDeaths$x,
-                                  u = state[2,derivDeaths$x],
-                                  hosps = state[3,derivDeaths$x],
-                                 postIntervention = postIntervention[derivDeaths$x]),
+  
+  yd <- log(state[!is.na(state[,2]) & !is.na(state[,4]) & (days <= endDate), 1])
+  # print(y)
+  xd <- seq(1, length(yd), by=1)
+  # print(x)
+  vd <- log(state[!is.na(state[,2]) & !is.na(state[,4]) & (days <= endDate), 4])
+  # print(v)
+  yds <- diff(yd)/diff(xd)
+  vds <- diff(vd)/diff(xd)
+  # x <- seq(1, length(ycs.prime), by=1)
+  ts_vd <- ts(vds, frequency=365, start=1)
+  ts_yd <- ts(yds, frequency=365, start=1)
+  xregd <- as.matrix(ts_vd)
+  # print(xreg)
+  # print(ycs.prime)
+  fit_basic2 <- auto.arima(ts_yd, xreg=xregd)
+  # print(fit_basic2)
+  # checkresiduals(fit_basic1)
+  xd <- seq(1, nrow(as.data.frame(fitted.values(fit_basic2))), by=1)
+  # print(as.data.frame(fitted.values(fit_basic2)))
+
+  # y <- log(state[2, !is.na(state[2,]) & (days <= endDate)])
+  # x <- which(!is.na(state[2,]) & (days <= endDate))
+  # splineDeaths <- smooth.spline(x = x[y > - Inf], y = y[y > -Inf])
+  # derivDeaths <- predict(splineDeaths, deriv = 1)
+
+  return(list(cases = data.frame(y = as.numeric(fitted.values(fit_basic1)),
+                                 t = x,
+                                 u = state[x, 1],
+                                 postIntervention = postIntervention[x],
+                                 deaths = state[x,2]),
+              deaths = data.frame(y = as.numeric(fitted.values(fit_basic2)),
+                                  t = xd,
+                                  u = state[xd, 2],
+                                  hosps = state[xd, 3],
+                                 postIntervention = postIntervention[xd]),
               days = days,
               intervDate = intervDate))
 }
@@ -109,7 +138,8 @@ riasJagsModel <- function(){
   for (i in 1:N){
     y[i] ~ dlnorm(mu[i], tau[i])
 
-    mu[i] <-  a[loc[i]] + b[loc[i]] * t[i] + (g[loc[i]] + d[loc[i]] * t[i]) * postIntervention[i]
+    mu[i] <-  a[loc[i]] + b[loc[i]] * t[i] + (g[loc[i]] + d[loc[i]] * t[i]) * postIntervention[i] 
+    # + v[(vacc[i])*(vacc[i])] + w[(vacc[i])*(vacc[i])] * t[i]
     tau[i] <- exp(alpha[loc[i]] + beta[loc[i]] * t[i])
   }
   
@@ -119,8 +149,8 @@ riasJagsModel <- function(){
     b[j] ~ dnorm(mu_b, 10) # random slope for location
     g[j] ~ dnorm(mu_g, 1) # random effect for post-intervention
     d[j] ~ dnorm(mu_d, 10) # random slope for post-intervention
-    # v[j] ~ dnorm(mu_v, 1) # random effect for vacc
-    # w[j] ~ dnorm(mu_w, 10) # random slope for vacc
+    v[j] ~ dnorm(mu_v, 1) # random effect for vacc
+    w[j] ~ dnorm(mu_w, 10) # random slope for vacc
     alpha[j] ~ dnorm(mu_alpha, 1)
        beta[j]  ~ dnorm(mu_beta, 10)
   }
@@ -128,8 +158,8 @@ riasJagsModel <- function(){
   mu_b  ~ dnorm(0, 10) # random slope mean
   mu_g  ~ dnorm(0, 1) # random effect mean
   mu_d  ~ dnorm(-.05, 10) # random slope mean
-  # mu_v  ~ dnorm(0, 1) # random vacc mean
-  # mu_w  ~ dnorm(-.05, 10) # random vacc slope mean
+  mu_v  ~ dnorm(0, 1) # random vacc mean
+  mu_w  ~ dnorm(-.05, 10) # random vacc slope mean
   mu_alpha ~ dnorm(0,1)
   mu_beta  ~ dnorm(0, 10)
 }
