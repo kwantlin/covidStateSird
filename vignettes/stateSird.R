@@ -18,7 +18,7 @@ library(nlme)
 
 
 # the last day of data to use
-endDate <- "2021-03-06"
+endDate <- "2021-03-07"
 minCase <- 100
 
 set.seed(525600)
@@ -82,7 +82,7 @@ velocModel <- R2jags::jags(data = velocLogCasesList, inits = NULL, parameters.to
 timeElapsed <- (Sys.time() - start)
 
 plotVelocityFit(velocModel$BUGSoutput$mean,
-                stateCovidData, states, stateInterventions,
+                stateCovidData, vaccineData, states, stateInterventions,
                 fileName = paste0(outputPath, "/Plots/velocityModelFit.pdf"))
 
 c_S_pre <- caseModelConstant(velocModel, intervention = 0)

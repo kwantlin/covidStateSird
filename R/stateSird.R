@@ -217,7 +217,7 @@ stateSird <- function(stateAbbrev, covariates, stateInterventions, stateCovidDat
   names(stateFit) <- c("times", "S", "I", "R", "D")
   stateFit[,1] <- as.Date(stateFit$times, origin = "1970-01-01")
   
-  tableDays <- c(as.Date(endDate), as.Date(c("2021-01-12", "2021-02-12")))
+  tableDays <- c(as.Date(endDate), as.Date(c("2020-12-12", "2021-01-12")))
   
   tRow <- which(stateFit$times %in% tableDays)
   
@@ -226,7 +226,10 @@ stateSird <- function(stateAbbrev, covariates, stateInterventions, stateCovidDat
              DailyDeathRate = 1e5 * diff(stateFit$D)[tRow-1]/ statePop)
   write.csv(rateTable, file = paste0(outputPath, "/Data/", stateAbbrev, "_rateTable.csv"))
   
-  save(allStateFit, stateFit, sirdParams, file = paste0(outputPath, "/Data/", stateAbbrev, ".Rdata"))
+  print(allStateFit)
+  write.csv(allStateFit, file = paste0(outputPath, "/Data/", stateAbbrev, "_extra.csv"), sep=",", row.names = FALSE, quote=FALSE)
+  
+  save(allStateFit, stateFit, sirdParams, file = paste0(outputPath, "/Data/", stateAbbrev, ".csv"))
 
   if(plots) {
 

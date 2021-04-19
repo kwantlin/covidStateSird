@@ -43,10 +43,10 @@ velocitiesState <- function(statesLong, vaccinesLong, stateAbbrev, stateInterven
   days  <- as.Date(daysAll[which(stateAll[,1] >= minCases)])
   
   postIntervention <- 1 * (days > intervDate)
-  # y <- log(state[1, !is.na(state[1,]) & (days <= endDate)])
-  # x <- which(!is.na(state[1,]) & (days <= endDate))
-  # splineCases <- smooth.spline(x = x[y > - Inf], y = y[y > -Inf])
-  # derivCases <- predict(splineCases, deriv = 1)
+  y <- log(state[!is.na(state[1,]) & (days <= endDate), 1])
+  x <- which(!is.na(state[1,]) & (days <= endDate))
+  splineCases <- smooth.spline(x = x[y > - Inf], y = y[y > -Inf])
+  derivCases <- predict(splineCases, deriv = 1)
   # print(derivCases)
   y <- log(state[!is.na(state[,1]) & !is.na(state[,4]) & (days <= endDate), 1])
   # print(y)
@@ -66,7 +66,7 @@ velocitiesState <- function(statesLong, vaccinesLong, stateAbbrev, stateInterven
   fit_basic1 <- auto.arima(ts_y, xreg=xreg)
   # print(fit_basic1)
   # checkresiduals(fit_basic1)
-  # print(as.data.frame(fitted.values(fit_basic1)))
+  # print(as.data.frame(fitted(fit_basic1)))
   # forecast_1 <- forecast(fit_basic1,xreg = xreg)
   # print(forecast_1)
   # splineCases <- smooth.spline(x = x[y > - Inf], y = y[y > -Inf])
@@ -86,11 +86,11 @@ velocitiesState <- function(statesLong, vaccinesLong, stateAbbrev, stateInterven
   # print("derivCases")
   # print(derivCases)
 
-  # ts_v <- ts(derivCases$y, frequency=365, start=1)
+  ts_y <- ts(derivCases$y, frequency=365, start=1)
   x <- seq(1, nrow(as.data.frame(fitted.values(fit_basic1))), by=1)
-  # plot(fit_basic1$x,col="red")
-  # lines(fitted(fit_basic1),col="blue")
-  # lines(ts_v, col="green")
+  plot(fit_basic1$x,col="red", ylab = "d/dt Log Cumulative Cases",   xlab = "Days Since 100+ Cases")
+  lines(fitted(fit_basic1),col="blue")
+  lines(ts_y, col="green")
 
   
   yd <- log(state[!is.na(state[,2]) & !is.na(state[,4]) & (days <= endDate), 1])
@@ -118,12 +118,12 @@ velocitiesState <- function(statesLong, vaccinesLong, stateAbbrev, stateInterven
   # splineDeaths <- smooth.spline(x = x[y > - Inf], y = y[y > -Inf])
   # derivDeaths <- predict(splineDeaths, deriv = 1)
 
-  return(list(cases = data.frame(y = as.numeric(fitted.values(fit_basic1)),
+  return(list(cases = data.frame(y = as.numeric(fitted(fit_basic1)),
                                  t = x,
                                  u = state[x, 1],
                                  postIntervention = postIntervention[x],
                                  deaths = state[x,2]),
-              deaths = data.frame(y = as.numeric(fitted.values(fit_basic2)),
+              deaths = data.frame(y = as.numeric(fitted(fit_basic2)),
                                   t = xd,
                                   u = state[xd, 2],
                                   hosps = state[xd, 3],

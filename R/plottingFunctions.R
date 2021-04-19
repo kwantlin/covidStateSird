@@ -147,14 +147,15 @@ plotRt <- function(allRt, state, days, plotT, endPlot, plotCol = plotCols[1]) {
 }
 
 #' @export
-plotVelocityFit <- function(posteriorMean, statesLong, states, stateInterventions, fileName = NULL) {
+plotVelocityFit <- function(posteriorMean, statesLong, vaccinesLong, states, stateInterventions, fileName = NULL) {
   if(!is.null(fileName)) {
     pdf(file = fileName, width = 6, height = 6)
   }
   for(i in 1:length(states)) {
-      testV <- velocitiesState(statesLong, states[i], stateInterventions, minCases = 100)
+      testV <- velocitiesState(statesLong, vaccinesLong, states[i], stateInterventions, minCases = 100)
       tt <- testV$cases$t
       y <- testV$cases$y
+      # print(y)
       y[which(y <= 0)] <- NA
       yy <-(y)
   
