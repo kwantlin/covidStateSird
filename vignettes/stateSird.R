@@ -18,7 +18,7 @@ library(nlme)
 
 
 # the last day of data to use
-endDate <- "2021-02-07"
+endDate <- "2021-03-06"
 minCase <- 100
 
 set.seed(525600)

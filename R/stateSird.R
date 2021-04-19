@@ -2,7 +2,7 @@
 #' @importFrom dplyr %>% lag group_by mutate
 #' @importFrom TTR runMean
 stateSird <- function(stateAbbrev, covariates, stateInterventions, stateCovidData, vaccineData, randomForestDeathModel, posteriorSamples,
-  rfError = FALSE, plots = TRUE, lagDays = 21, minCases = 100, endDay = endDate, endPlotDay = "2020-11-01") {
+  rfError = FALSE, plots = TRUE, lagDays = 21, minCases = 100, endDay = endDate, endPlotDay = "2021-03-07") {
 
   statePop = stateInterventions$statePopulation[which(stateInterventions$stateAbbreviation == stateAbbrev)]
 
@@ -217,11 +217,11 @@ stateSird <- function(stateAbbrev, covariates, stateInterventions, stateCovidDat
   names(stateFit) <- c("times", "S", "I", "R", "D")
   stateFit[,1] <- as.Date(stateFit$times, origin = "1970-01-01")
   
-  tableDays <- c(as.Date(endDate), as.Date(c("2020-10-01", "2020-11-01")))
+  tableDays <- c(as.Date(endDate), as.Date(c("2021-01-12", "2021-02-12")))
   
   tRow <- which(stateFit$times %in% tableDays)
   
-  rateTable <- data.frame(Day = c(as.Date(endDate), as.Date(c("2020-10-01", "2020-11-01"))),
+  rateTable <- data.frame(Day = c(as.Date(endDate), as.Date(c("2021-01-12", "2021-02-12"))),
              ActiveInfectionRate = 1e5 * (stateFit$I[tRow])/ statePop,
              DailyDeathRate = 1e5 * diff(stateFit$D)[tRow-1]/ statePop)
   write.csv(rateTable, file = paste0(outputPath, "/Data/", stateAbbrev, "_rateTable.csv"))
